@@ -35,9 +35,18 @@ router.get(
   /* auth, */ async (req, res) => {
     try {
       const { id } = req.params;
+      const include = req.query.include_password;
+      console.log(include);
       const user = await prisma.user.findUnique({
         where: {
           id: id,
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          password: include === 'true' ? true : false,
         },
       });
       res.status(200).json(user);
