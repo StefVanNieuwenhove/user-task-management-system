@@ -56,6 +56,16 @@ router.get(
   }
 );
 
+// GET /api/user/logout
+router.get('/logout', async (req, res) => {
+  try {
+    res.clearCookie(JWT_TOKEN);
+    res.status(200).json('Logged out successfully');
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // POST /api/user/register
 router.post(
   '/register',
