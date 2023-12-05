@@ -1,0 +1,49 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// model user => role based: manager or employee
+model user {
+  id        String      @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role   @default(employee)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  // one to many relationship
+  tasks     task[]
+}
+
+// model task => status based: todo, in progress, done
+model task {
+  id        String      @id @default(uuid())
+  title     String
+  status    Status   @default(todo)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  // many to one relationship
+  user      user?    @relation(fields: [user_id], references: [id])
+  user_id    String?
+}
+
+// enum role
+enum Role {
+  manager
+  employee
+}
+
+// enum status
+enum Status {
+  todo
+  in_progress
+  done
+}
