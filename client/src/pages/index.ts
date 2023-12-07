@@ -1,2 +1,3 @@
 export * from './public';
-export * from './private';
+export * from './manager';
+export * from './employee';
