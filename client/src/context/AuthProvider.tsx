@@ -125,16 +125,19 @@ const AuthProvider = memo(({ children }: { children: ReactNode }) => {
   const isAuth = useMemo(() => !!token, [token]);
 
   const isSignedIn = useCallback(() => {
-    if (!token) return false;
-
-    const { exp } = parseJwt(token);
-    return parseExp(exp) > new Date();
+    try {
+      if (!token) return false;
+      const { exp } = parseJwt(token);
+      return parseExp(exp) > new Date();
+    } catch (error) {
+      return false;
+    }
   }, [token]);
 
   const logout = useCallback(async () => {
     await logoutUser();
-    await setSession('', null);
-  }, [setSession]);
+    localStorage.removeItem(TOKEN_KEY);
+  }, []);
 
   const value = useMemo(() => {
     return {
