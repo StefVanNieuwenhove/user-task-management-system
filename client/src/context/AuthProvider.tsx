@@ -28,6 +28,7 @@ const AuthContext = createContext<AuthProviderType>({
   isManager: false,
   isAuth: false,
   hasPermission: () => false,
+  isSignedIn: () => false,
 });
 
 const parseJwt = (token: string) => {
@@ -123,6 +124,13 @@ const AuthProvider = memo(({ children }: { children: ReactNode }) => {
 
   const isAuth = useMemo(() => !!token, [token]);
 
+  const isSignedIn = useCallback(() => {
+    if (!token) return false;
+
+    const { exp } = parseJwt(token);
+    return parseExp(exp) > new Date();
+  }, [token]);
+
   const logout = useCallback(async () => {
     await logoutUser();
     await setSession('', null);
@@ -140,6 +148,7 @@ const AuthProvider = memo(({ children }: { children: ReactNode }) => {
       isManager,
       isAuth,
       hasPermission,
+      isSignedIn,
     };
   }, [
     user,
@@ -152,6 +161,7 @@ const AuthProvider = memo(({ children }: { children: ReactNode }) => {
     isManager,
     isAuth,
     hasPermission,
+    isSignedIn,
   ]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -17,7 +17,7 @@ export type Task = {
   updated_at: string;
 };
 
-export type Role = 'manager' | 'emoplpyee';
+export type Role = 'manager' | 'employee';
 export type Status = 'todo' | 'in progress' | 'done';
 
 export type AuthProvider = {
@@ -32,4 +32,7 @@ export type AuthProvider = {
   token: string | null;
   setSession: (token: string, user: User | null) => Promise<void>;
   isManager: boolean;
+  isAuth: boolean;
+  hasPermission: (role: Role) => boolean;
+  isSignedIn: () => boolean;
 };

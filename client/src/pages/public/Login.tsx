@@ -2,6 +2,8 @@ import { Box, Button, Container, TextField, Typography } from '@mui/material';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import { useAuth } from '../../context/AuthProvider';
+import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const validationSchema = Yup.object({
   email: Yup.string()
@@ -11,7 +13,8 @@ const validationSchema = Yup.object({
 });
 
 const Login = () => {
-  const { login } = useAuth();
+  const { login, isSignedIn } = useAuth();
+  const navigate = useNavigate();
   const {
     handleSubmit,
     handleChange,
@@ -22,23 +25,31 @@ const Login = () => {
     touched,
   } = useFormik({
     initialValues: {
-      email: 'stef@team.com',
-      password: 'Manager123',
+      email: 'john@team.com',
+      password: 'JohnDoe123',
     },
     validationSchema,
     onSubmit: async (values) => {
       const { email, password } = values;
       const { user } = await login(email, password);
-      switch (user?.role as string) {
-        case 'manager':
-          window.location.href = '/manager';
-          break;
-        case 'employee':
-          window.location.href = '/employee';
-          break;
+      if (user) {
+        handleReset({
+          values: {
+            email: '',
+            password: '',
+          },
+        });
+        navigate('/dashboard');
       }
     },
   });
+
+  useEffect(() => {
+    if (isSignedIn()) {
+      navigate('/dashboard');
+    }
+  });
+
   return (
     <>
       <Container maxWidth='lg' sx={{ height: '100vh' }}>
