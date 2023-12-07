@@ -36,7 +36,6 @@ router.get(
     try {
       const { id } = req.params;
       const include = req.query.include_password;
-      console.log(include);
       const user = await prisma.user.findUnique({
         where: {
           id: id,
