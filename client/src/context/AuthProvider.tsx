@@ -13,7 +13,7 @@ import { login as loginUser, logout as logoutUser, getUser } from '../api/user';
 import * as api from '../api';
 import { Buffer } from 'buffer';
 
-const TOKEN_KEY = 'scouts-token';
+const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY as string;
 
 const AuthContext = createContext<AuthProviderType>({
   user: null,
@@ -26,6 +26,8 @@ const AuthContext = createContext<AuthProviderType>({
   logout: async () => {},
   setSession: async () => {},
   isManager: false,
+  isAuth: false,
+  hasPermission: () => false,
 });
 
 const parseJwt = (token: string) => {
@@ -104,6 +106,23 @@ const AuthProvider = memo(({ children }: { children: ReactNode }) => {
     [setSession]
   );
 
+  const hasPermission = useCallback(
+    (permission: string) => {
+      const rolePermissions = {
+        manager: ['read', 'write', 'delete'],
+        employee: ['read'],
+      };
+
+      if (!user) {
+        return false;
+      }
+      return rolePermissions[user.role].includes(permission);
+    },
+    [user]
+  );
+
+  const isAuth = useMemo(() => !!token, [token]);
+
   const logout = useCallback(async () => {
     await logoutUser();
     await setSession('', null);
@@ -119,8 +138,21 @@ const AuthProvider = memo(({ children }: { children: ReactNode }) => {
       logout,
       setSession,
       isManager,
+      isAuth,
+      hasPermission,
     };
-  }, [user, loading, error, token, login, logout, setSession, isManager]);
+  }, [
+    user,
+    loading,
+    error,
+    token,
+    login,
+    logout,
+    setSession,
+    isManager,
+    isAuth,
+    hasPermission,
+  ]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 });
