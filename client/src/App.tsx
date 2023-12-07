@@ -1,6 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
-import { Login, Logout } from './pages';
-import { RedirectRoute } from './components';
+import { Dashboard, Login, Logout } from './pages';
+import { PrivateRoute, RedirectRoute } from './components';
 
 function App() {
   return (
@@ -9,12 +9,15 @@ function App() {
         <Route path='/' element={<RedirectRoute path={'login'} />} />
         <Route path='/login' element={<Login />} />
         <Route path='/logout' element={<Logout />} />
-        <Route path='manager' element={<p>manager</p>}>
-          <Route index element={<p>manager index</p>} />
-        </Route>
-        <Route path='employee' element={<p>empoyee</p>}>
-          <Route index element={<p>employee index</p>} />
-        </Route>
+        <Route
+          path='/dashboard'
+          element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route path='*' element={<RedirectRoute path={'login'} />} />
       </Routes>
     </>
   );
