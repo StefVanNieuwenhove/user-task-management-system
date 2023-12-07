@@ -36,3 +36,15 @@ export type AuthProvider = {
   hasPermission: (role: Role) => boolean;
   isSignedIn: () => boolean;
 };
+
+export type DashboardProvider = {
+  role: Role | undefined;
+};
+
+export type Navbar = {
+  routes: {
+    path: string;
+    name: string;
+  }[];
+  user: User | null;
+};
