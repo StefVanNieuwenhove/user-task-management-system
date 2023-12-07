@@ -1,9 +1,10 @@
-import { Box, Button, Container, TextField, Typography } from '@mui/material';
+import { Box, Button, TextField, Typography } from '@mui/material';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import { useAuth } from '../../context/AuthProvider';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import cover from '/cover.jpg';
 
 const validationSchema = Yup.object({
   email: Yup.string()
@@ -25,8 +26,8 @@ const Login = () => {
     touched,
   } = useFormik({
     initialValues: {
-      email: 'john@team.com',
-      password: 'JohnDoe123',
+      email: '',
+      password: '',
     },
     validationSchema,
     onSubmit: async (values) => {
@@ -48,11 +49,36 @@ const Login = () => {
     if (isSignedIn()) {
       navigate('/dashboard');
     }
-  });
+  }, [isSignedIn, navigate]);
 
   return (
     <>
-      <Container maxWidth='lg' sx={{ height: '100vh' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          height: '100vh',
+          width: '100%',
+          overflow: 'hidden',
+          gap: 2,
+          scrollBehavior: 'smooth',
+        }}>
+        <Box
+          sx={{
+            width: { md: '50%' },
+            display: { sm: 'none', md: 'block' },
+            overflow: 'hidden',
+            m: 0,
+          }}>
+          <img
+            src={cover}
+            alt='login'
+            style={{
+              height: '100%',
+              width: '100%',
+              objectFit: 'cover',
+            }}
+          />
+        </Box>
         <Box
           sx={{
             display: 'flex',
@@ -61,10 +87,12 @@ const Login = () => {
             flexDirection: 'column',
             gap: 2,
             height: '100%',
+            width: { md: '50%', sm: '100%' },
           }}>
-          <Typography variant='h4' sx={{ textAlign: 'center', mt: 3 }}>
-            User Task Management System - Login
-          </Typography>
+          <Box sx={{ textAlign: 'center' }}>
+            <Typography variant='h4'>User Management System</Typography>
+            <Typography variant='h6'>Login</Typography>
+          </Box>
           <TextField
             variant='standard'
             fullWidth
@@ -111,7 +139,7 @@ const Login = () => {
             </Button>
           </Box>
         </Box>
-      </Container>
+      </Box>
     </>
   );
 };
