@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
-import { Dashboard, Login, Logout } from './pages';
+import { Login, Logout } from './pages';
 import { PrivateRoute, RedirectRoute } from './components';
+import { DashboardProvider } from './context';
 
 function App() {
   return (
@@ -9,15 +10,6 @@ function App() {
         <Route path='/' element={<RedirectRoute path={'login'} />} />
         <Route path='/login' element={<Login />} />
         <Route path='/logout' element={<Logout />} />
-        <Route
-          path='/dashboard'
-          element={
-            <PrivateRoute>
-              <Dashboard />
-            </PrivateRoute>
-          }
-        />
-        <Route path='*' element={<RedirectRoute path={'login'} />} />
       </Routes>
     </>
   );
