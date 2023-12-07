@@ -1,15 +1,7 @@
 import { axios } from '.';
 import { User } from '../types';
 
-export const getUsers = async () => {
-  try {
-    const { data } = await axios.get('/user', { withCredentials: true });
-    return data;
-  } catch (error) {
-    console.log(error);
-  }
-};
-
+// public api endpoints
 export const getUser = async ({
   id,
   include_password = false,
@@ -22,22 +14,6 @@ export const getUser = async ({
     { withCredentials: true }
   );
   return user.data;
-};
-
-export const updateRole = async (
-  id: string,
-  role: string
-): Promise<User | undefined> => {
-  try {
-    const user = await axios.put(
-      `user/${id}`,
-      { role },
-      { withCredentials: true }
-    );
-    return user.data;
-  } catch (error) {
-    console.log(error);
-  }
 };
 
 export const login = async (
@@ -77,5 +53,13 @@ export const register = async (
 };
 
 export const logout = async (): Promise<void> => {
-  await axios.get('/user/logout');
+  await axios.delete('/user/logout');
+};
+
+// private api endpoints
+export const getEmployees = async (): Promise<User[]> => {
+  const employees = await axios.get('/user/employees', {
+    withCredentials: true,
+  });
+  return employees.data;
 };
