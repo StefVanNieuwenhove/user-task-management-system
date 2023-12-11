@@ -32,22 +32,20 @@ const Login = () => {
     validationSchema,
     onSubmit: async (values) => {
       const { email, password } = values;
-      const { user } = await login(email, password);
-      if (user) {
+      await login(email, password).then(() =>
         handleReset({
           values: {
             email: '',
             password: '',
           },
-        });
-        navigate('/dashboard');
-      }
+        })
+      );
     },
   });
 
   useEffect(() => {
     if (isSignedIn()) {
-      navigate('/dashboard');
+      navigate('/manager');
     }
   }, [isSignedIn, navigate]);
 

@@ -22,10 +22,7 @@ export type Status = 'todo' | 'in progress' | 'done';
 
 export type AuthProvider = {
   user: User | null;
-  login: (
-    email: string,
-    password: string
-  ) => Promise<{ user: User | null; token: string }>;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   loading: boolean;
   error: string;

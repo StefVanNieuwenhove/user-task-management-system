@@ -9,9 +9,10 @@ import {
   useState,
 } from 'react';
 import { AuthProvider as AuthProviderType, User } from '../types';
-import { login as loginUser, logout as logoutUser, getUser } from '../api/user';
+import { login as loginUser, logout as logoutUser } from '../api/user';
 import * as api from '../api';
 import { Buffer } from 'buffer';
+import { useNavigate } from 'react-router-dom';
 
 const TOKEN_KEY = import.meta.env.VITE_TOKEN_KEY as string;
 
@@ -20,9 +21,7 @@ const AuthContext = createContext<AuthProviderType>({
   loading: true,
   error: '',
   token: '',
-  login: async () => {
-    return { user: null, token: '' };
-  },
+  login: async () => {},
   logout: async () => {},
   setSession: async () => {},
   isManager: false,
@@ -46,6 +45,8 @@ export const useAuth = () => {
 };
 
 const AuthProvider = memo(({ children }: { children: ReactNode }) => {
+  const navigate = useNavigate();
+
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
@@ -54,49 +55,47 @@ const AuthProvider = memo(({ children }: { children: ReactNode }) => {
   );
   const isManager = useMemo(() => user?.role === 'manager', [user]);
 
-  const setSession = useCallback(async (token: string, user: User | null) => {
-    try {
-      setLoading(true);
-      if (token) {
-        const { exp, id } = parseJwt(token);
-        const expiresAt = parseExp(exp);
-        const validToken = expiresAt > new Date();
+  const setSession = useCallback(
+    async (token: string) => {
+      try {
+        setLoading(true);
+        if (token) {
+          const { exp, user } = parseJwt(token);
+          const expiresAt = parseExp(exp);
+          const validToken = expiresAt > new Date();
 
-        if (validToken) {
-          localStorage.setItem(TOKEN_KEY, token);
-          api.setAuthToken(token);
-          setToken(token);
-
-          if (!user && validToken) {
-            user = await getUser({ id: id, include_password: false });
+          if (validToken) {
+            localStorage.setItem(TOKEN_KEY, token);
+            api.setAuthToken(token);
+            setToken(token);
+            setUser(user);
+          } else {
+            localStorage.removeItem(TOKEN_KEY);
+            token = '';
           }
-          setUser(user);
-        } else {
-          localStorage.removeItem(TOKEN_KEY);
-          token = '';
         }
+      } catch (error) {
+        setError('Error occured when setting session');
+        throw error;
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      setError('Error occured when setting session');
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    [setToken, setLoading]
+  );
 
   useEffect(() => {
-    setSession(token, null);
+    setSession(token);
   }, [token, setSession]);
 
   const login = useCallback(
     async (email: string, password: string) => {
       try {
-        console.log('login');
         setLoading(true);
         setError('');
         const { token, user } = await loginUser(email, password);
-        await setSession(token, user);
-        return { token, user };
+        await setSession(token);
+        return navigate(`/${user.role}`);
       } catch (error) {
         setError('Error occured when loggin in');
         throw error;
@@ -104,7 +103,7 @@ const AuthProvider = memo(({ children }: { children: ReactNode }) => {
         setLoading(false);
       }
     },
-    [setSession]
+    [setSession, navigate]
   );
 
   const hasPermission = useCallback(
